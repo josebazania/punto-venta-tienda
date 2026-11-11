@@ -1,206 +1,213 @@
 # Abarrotes POS
 
-Punto de venta de escritorio para una tienda de abarrotes. Funciona sin internet, guarda todo en un archivo SQLite y está pensado para operar el mostrador desde Windows con teclado o lector de código de barras USB.
+Aplicación de escritorio para gestionar las ventas y el inventario de una tienda de abarrotes. Funciona con datos locales en SQLite y está orientada a negocios que trabajan en soles peruanos.
 
-**Stack:** Python 3.10+ · PySide6 · SQLite 3  
-**Moneda:** Soles peruanos (S/)  
-**Idioma:** Español
+El proyecto utiliza Python, PySide6, SQLite y openpyxl. La interfaz está en español y permite trabajar sin conexión a internet una vez instaladas las dependencias.
 
-![Resumen del día](docs/screenshots/resumen.png)
+> **Comprobantes:** los PDF y tickets generados son comprobantes internos. La aplicación no emite boletas ni facturas electrónicas SUNAT.
 
-## Funciones incluidas
+![Pantalla de inicio de Abarrotes POS](docs/screenshots/resumen.png)
 
-- **Punto de venta:** búsqueda por nombre, SKU o código de barras, carrito con cantidades decimales, descuento global, cobro en efectivo con vuelto, tarjeta o transferencia.
-- **Comprobante interno:** folio diario, detalle de productos, totales, vuelto e impresión mediante el diálogo de impresión de Windows.
-- **Boletas PDF:** cada venta genera automáticamente un PDF A4 en `data/boletas/AAAA/MM/`, con opción de abrirlo, guardar una copia y regenerarlo desde el historial.
-- **Caja:** apertura con fondo, ingresos/egresos, devoluciones, efectivo esperado y cierre con arqueo y diferencia.
-- **Productos:** alta, edición, códigos único de barras, precios, costo, stock mínimo, categorías y activación/desactivación.
-- **Inventario:** entradas de mercancía, mermas, ajustes por conteo, alertas de stock bajo y bitácora de movimientos.
-- **Ventas:** historial filtrable, detalle de ticket y anulación con restauración de stock.
-- **Ajustes:** datos del negocio para el comprobante y copias de seguridad desde la aplicación.
-- **Datos demo:** 21 productos de abarrotes listos para probar en el primer inicio.
+## Funciones
 
-## Capturas
+- **Punto de venta:** búsqueda por nombre, código interno o código de barras; carrito, cantidades decimales y descuentos.
+- **Cobros:** efectivo, tarjeta, transferencia y Yape. Los pagos no efectivos se incluyen en las ventas, pero no en el efectivo esperado de caja.
+- **Caja:** apertura, movimientos, arqueo y cierre. Se requiere una caja abierta para registrar ventas.
+- **Productos e inventario:** catálogo, categorías, precios, stock mínimo, entradas, mermas, ajustes y movimientos.
+- **Excel:** plantilla, importación de nuevos productos y exportación del catálogo en `.xlsx`.
+- **Historial de ventas:** búsqueda, filtros por fecha y estado, accesos rápidos a hoy, ayer, esta semana y este mes, y anulación de ventas.
+- **Comprobantes:** impresión y PDF para papel térmico de 80 mm. Desde el detalle de una venta se puede imprimir el ticket o abrir su PDF.
+- **Estadísticas:** ventas, ticket promedio, métodos de pago, productos más vendidos y evolución diaria, con periodos de 7 días, 30 días o mes actual.
+- **Respaldo:** copia de la base de datos desde la interfaz y respaldo automático antes de una migración.
 
-![Punto de venta](docs/screenshots/punto-venta.png)
+![Pantalla de punto de venta](docs/screenshots/punto-venta.png)
 
-![Boleta PDF generada por el sistema](docs/screenshots/boleta-pdf.png)
-
-## Boletas en PDF
-
-Al confirmar una venta se crea automáticamente una boleta PDF en:
-
-```text
-data\boletas\AAAA\MM\V-AAAAMMDD-####.pdf
-```
-
-- En el diálogo de venta puedes usar **Abrir PDF** o **Guardar copia** para enviarla por correo o imprimirla en una hoja A4.
-- En **Ventas**, selecciona una venta y pulsa **Generar PDF** para recuperar o regenerar el archivo. Si la venta está anulada, el PDF muestra el estado **ANULADA** y el motivo.
-- En **Ajustes → Abrir boletas PDF** se abre la carpeta donde se guardan.
-- El PDF es un **comprobante interno** en formato A4 y no sustituye una boleta electrónica SUNAT.
-- La impresión térmica sigue disponible con **Imprimir comprobante** en el diálogo de venta.
-- Para guardar los PDF en otra ubicación, define `POS_PDF_DIR` antes de arrancar:
-
-```powershell
-$env:POS_PDF_DIR = "D:\Documentos\Boletas"
-python main.py
-```
+Las capturas del repositorio son ilustrativas y pueden no reflejar los cambios más recientes de la interfaz.
 
 ## Requisitos
 
-- Python 3.10 o superior.
-- Windows 10/11, Linux o macOS con entorno gráfico.
-- PySide6 6.8 o superior (`requirements.txt`).
+- Python 3.10 o superior y un entorno gráfico compatible con Qt.
+- Windows 10/11 para el ejecutable de Windows. El código fuente también puede ejecutarse en Linux o macOS con sus dependencias gráficas instaladas.
+- PySide6 y openpyxl, instalados mediante `requirements.txt`.
+- Para imprimir, una impresora configurada en el sistema operativo. El PDF está diseñado para papel térmico de 80 mm.
 
-## Instalación
+## Instalación desde el código fuente
 
-### Windows con PowerShell
+Clona este repositorio desde GitHub y abre una terminal en la carpeta del proyecto. Usa la URL que proporciona el botón **Code** de GitHub:
+
+```bash
+git clone <URL-DEL-REPOSITORIO>
+cd <carpeta-del-repositorio>
+```
+
+### Windows
 
 ```powershell
-cd "C:\ruta\a\punto-venta-tienda"
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 python main.py
 ```
 
-Si PowerShell bloquea la activación del entorno:
+También puedes iniciar con `iniciar.bat`; si existe `.venv`, el archivo utiliza ese entorno. Si PowerShell impide activar el entorno virtual, puedes ejecutarlo sin activarlo:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe main.py
 ```
 
-También puedes hacer doble clic en `iniciar.bat`; usará `.venv` automáticamente si existe.
-
-### Linux / macOS
+### Linux y macOS
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 python main.py
 ```
 
-## Primer uso
+### Ejecutable para Windows
 
-1. Abre la aplicación.
-2. Ve a **Caja** y pulsa **Abrir caja**. Registra el fondo inicial del turno.
-3. En **Punto de venta**, busca un producto y agrégalo con doble clic o `Enter`.
-4. Pulsa **Cobrar** o `F4`, elige el método de pago y confirma.
-5. Revisa/imprime el comprobante.
-6. Al terminar el turno, entra a **Caja**, pulsa **Cerrar caja**, cuenta el efectivo y confirma el arqueo.
+El repositorio no incluye los archivos generados en `dist/`. Si el propietario publica una versión en **Releases**, descarga el ejecutable de esa publicación. Un ejecutable empaquetado incluye Python y sus librerías; no necesitas instalarlos por separado en el equipo donde lo uses.
 
-> No se puede cobrar con la caja cerrada. Es intencional: así se mantiene trazabilidad del efectivo.
-
-### Empezar sin productos demo
-
-Los datos demo se cargan una sola vez. Para iniciar una tienda real con el catálogo vacío, cierra la aplicación, elimina la base de datos y arranca con `POS_SEED_DEMO=0`:
+Para generar un ejecutable en Windows con Python 3.12, desde un entorno virtual con las dependencias instaladas:
 
 ```powershell
-Remove-Item data\pos.db, data\pos.db-wal, data\pos.db-shm -ErrorAction SilentlyContinue
+python -m pip install pyinstaller
+python -m PyInstaller --noconfirm --onefile --windowed --name AbarrotesPOS --icon pos/ui/assets/icono.ico --add-data "pos/ui/assets;pos/ui/assets" main.py
+```
+
+El resultado se guarda en `dist\AbarrotesPOS.exe`. La compilación se realiza en Windows para Windows; prueba el archivo resultante antes de distribuirlo. PyInstaller es una herramienta de compilación y no está incluido en `requirements.txt`.
+
+## Primeros pasos
+
+1. Inicia la aplicación y revisa **Ajustes → Datos del negocio** para configurar el nombre, RUC, dirección, teléfono y mensaje del comprobante.
+2. Ve a **Productos** para revisar o registrar el catálogo. En el primer inicio se cargan productos de demostración por defecto.
+3. En **Caja**, abre un turno e ingresa el fondo inicial.
+4. En **Punto de venta**, busca los productos, agrégalos al carrito y selecciona **Cobrar**. Elige el método de pago y confirma la venta.
+5. Abre o imprime el comprobante. Al terminar el turno, utiliza **Caja → Cerrar caja** para realizar el arqueo.
+
+Para iniciar una base nueva sin los productos de demostración, establece la variable antes del primer inicio de esa base:
+
+```powershell
 $env:POS_SEED_DEMO = "0"
 python main.py
 ```
 
-Se crearán las categorías base y los ajustes, pero ningún producto. Después registra tus propios productos desde **Productos → Nuevo producto**.
+En Linux o macOS: `POS_SEED_DEMO=0 python main.py`. Esta opción no elimina productos ya registrados. Se crean las categorías y ajustes iniciales.
 
-## Atajos del punto de venta
+### Atajos del punto de venta
 
-| Atajo | Acción |
-|---|---|
-| `F2` | Enfocar la búsqueda |
+| Tecla | Acción |
+| --- | --- |
+| `F2` | Enfocar la búsqueda de productos |
 | `F4` | Abrir el cobro |
-| `F8` | Vaciar el ticket |
-| `Supr` | Quitar el producto seleccionado del ticket |
+| `F8` | Vaciar el carrito |
+| `Supr` | Quitar el producto seleccionado del carrito |
 | `Enter` en búsqueda | Agregar el código exacto o el único resultado |
 
-Un lector de código de barras USB funciona en modo teclado: escanea y presiona `Enter`; el producto se agrega automáticamente.
+Un lector de código de barras que funcione como teclado puede utilizarse en el campo de búsqueda.
 
-## Datos y respaldos
+## Productos y Excel
 
-La base de datos se crea en `data/pos.db` y se configura en modo WAL. Incluye productos, ventas, movimientos de inventario, sesiones de caja y ajustes.
+En **Productos → Plantilla Excel** puedes guardar una plantilla `.xlsx`. Completa una fila por producto con los siguientes encabezados:
 
-- **Copia desde la interfaz:** **Ajustes → Crear respaldo**. Se guarda un archivo `.db` completo.
-- **Copia manual:** con la aplicación cerrada, copia `data/pos.db` (y sus archivos `-wal`/`-shm` si existen) a otra ubicación.
-- **Ruta personalizada:** define `POS_DB_PATH` antes de arrancar:
+| Columna | Contenido |
+| --- | --- |
+| `nombre` | Nombre del producto; obligatorio. |
+| `precio` | Precio de venta en soles; obligatorio y mayor que cero. |
+| `codigo` | Código interno; si está vacío, se genera uno. |
+| `codigo_barras` | Código de barras opcional. Usa formato de texto en Excel para conservar ceros iniciales. |
+| `categoria` | Nombre de una categoría existente; opcional. |
+| `unidad` | `pieza`, `kg`, `litro`, `paquete`, `caja` o `bolsa`; por defecto, `pieza`. |
+| `costo` | Costo en soles; por defecto, cero. |
+| `stock` | Stock inicial; por defecto, cero. |
+| `stock_minimo` | Cantidad mínima para alertas; por defecto, cero. |
+
+Selecciona **Importar Excel** para procesar el archivo. Las filas válidas se crean y las filas con errores se omiten y se detallan en el resultado. No se admiten fórmulas. La importación **no actualiza productos existentes**; antes de reintentar, retira las filas que ya se importaron. El stock inicial genera un movimiento de inventario.
+
+Con **Exportar Excel** se guarda el catálogo completo, incluidos los productos inactivos, independientemente de los filtros visibles. El archivo incluye una columna informativa `estado` y comparte las demás columnas con la plantilla. Importarlo crea productos nuevos; no es una función de actualización masiva.
+
+## Ventas, comprobantes y estadísticas
+
+En **Ventas**, selecciona una venta y usa **Generar PDF** o haz doble clic para abrir su detalle. Desde el detalle puedes seleccionar **Abrir PDF** o **Imprimir comprobante**. El PDF se guarda por año y mes; si falta, el programa puede generarlo nuevamente. Las ventas anuladas se identifican como tales.
+
+Los PDF tienen un ancho de 80 mm y una altura ajustada al contenido. Al imprimir, selecciona la impresora y el tamaño de papel adecuado en el diálogo del sistema. Los PDF se pueden localizar desde **Ajustes → Abrir boletas PDF**.
+
+La sección **Estadísticas** utiliza ventas completadas y excluye las anuladas. Muestra hasta cinco productos según la cantidad vendida y, en la evolución diaria, hasta los siete días más recientes del periodo que tuvieron ventas.
+
+## Datos, copias y configuración
+
+La ubicación predeterminada depende de cómo se ejecute la aplicación:
+
+| Ejecución | Base de datos | PDF y respaldos | Registros |
+| --- | --- | --- | --- |
+| Desde el código fuente | `data/pos.db` | `data/boletas/` y `data/backups/` | `logs/` |
+| Ejecutable Windows | `%LOCALAPPDATA%\AbarrotesPOS\data\pos.db` | `%LOCALAPPDATA%\AbarrotesPOS\data\boletas\` y `data\backups\` | `%LOCALAPPDATA%\AbarrotesPOS\logs\` |
+
+En **Ajustes → Información del sistema** se muestra la ruta real de la base; **Abrir datos** abre la carpeta que la contiene. Cada usuario de Windows tiene su propia carpeta local. Mover solamente el ejecutable a otro equipo no transfiere sus datos.
+
+Usa **Ajustes → Crear respaldo** para guardar una copia SQLite. El respaldo no incluye los PDF: copia también la carpeta de boletas si necesitas conservar esos archivos. Antes de restaurar una copia o manipular la base manualmente, cierra la aplicación y conserva una copia de seguridad de los datos actuales. Los PDF pueden regenerarse desde el historial, utilizando los datos del negocio configurados en ese momento.
+
+Se pueden definir estas variables de entorno antes de iniciar:
+
+| Variable | Función |
+| --- | --- |
+| `POS_DB_PATH` | Ruta personalizada del archivo SQLite. |
+| `POS_PDF_DIR` | Carpeta donde se guardan los PDF. |
+| `POS_SEED_DEMO` | Usa `0`, `false` o `no` para desactivar la carga de demostración. |
+
+Ejemplo en PowerShell:
 
 ```powershell
 $env:POS_DB_PATH = "D:\Datos\abarrotes.db"
+$env:POS_PDF_DIR = "D:\Datos\boletas"
 python main.py
 ```
 
-- **Restaurar:** cierra la aplicación, reemplaza `data/pos.db` por el respaldo y vuelve a abrir.
-- Los respaldos automáticos previos a una migración de esquema se guardan en `data/backups/`.
-- **PDF:** el respaldo `.db` no incluye los archivos de `data/boletas/`. Copia también esa carpeta si necesitas conservar los PDF; de todos modos puedes regenerar cualquier boleta desde **Ventas → Generar PDF**.
+Las bases de datos, respaldos, registros, entornos virtuales y compilaciones están excluidos por `.gitignore`. Revisa siempre los archivos que vas a publicar y evita subir información real de clientes o ventas.
 
-## Estructura del proyecto
+## Estructura
 
 ```text
-punto-venta-tienda/
-├── main.py                    # Arranque
-├── iniciar.bat                # Lanzador para Windows
-├── requirements.txt
-├── PLAN.md                    # Plan funcional y técnico
-├── README.md
-├── data/                      # Base de datos local (no se versiona)
-├── logs/pos.log               # Registro de errores
-├── pos/
-│   ├── config.py              # Rutas, moneda, formatos y constantes
-│   ├── context.py             # Contenedor de servicios
-│   ├── receipt.py             # Generación del comprobante de texto
-│   ├── db/                    # Conexión, migraciones y seed
-│   ├── repositories/          # SQL y mapeo de filas
-│   ├── services/              # Reglas de negocio, PDF y transacciones
-│   └── ui/                    # Ventana, vistas, diálogos, tema y assets
-└── tests/                     # Pruebas de dominio y smoke test de UI
+main.py                 Entrada de la aplicación
+iniciar.bat             Lanzador para Windows
+requirements.txt        Dependencias de ejecución
+pos/config.py           Configuración, rutas y constantes
+pos/db/                 Conexiones, migraciones y datos iniciales
+pos/repositories/       Consultas y acceso a SQLite
+pos/services/           Reglas de negocio, reportes y PDF
+pos/ui/                 Ventanas, vistas, diálogos y recursos gráficos
+tests/                  Pruebas de servicios e interfaz
+docs/screenshots/       Capturas ilustrativas
 ```
 
-La arquitectura es **UI → servicios → repositorios → SQLite**. La interfaz no ejecuta SQL y los precios se releen de la base de datos al cobrar para evitar manipulación desde la vista.
-
-## Reglas de negocio principales
-
-- El dinero se almacena en céntimos enteros; las cantidades en `REAL` con hasta 3 decimales.
-- Una venta siempre requiere una caja abierta.
-- El stock nunca queda negativo; cada cambio genera un movimiento de inventario.
-- Una venta anulada no puede anularse dos veces.
-- Si se anula una venta en efectivo de una caja ya cerrada, la devolución se registra en la caja abierta actual. Si no hay caja abierta, la anulación se bloquea hasta abrir una.
-- El descuento no puede superar el subtotal y el efectivo recibido debe cubrir el total.
-- Solo puede existir una caja abierta a la vez.
-- Todo queda registrado localmente; no se envía información a ningún servidor.
+La arquitectura sigue el flujo **interfaz → servicios → repositorios → SQLite**. Los importes se almacenan en céntimos enteros. El inventario se valida al vender y sus cambios quedan registrados como movimientos.
 
 ## Pruebas
+
+En una terminal con las dependencias instaladas:
 
 ```powershell
 $env:QT_QPA_PLATFORM = "offscreen"
 python -m unittest discover -s tests -v
 ```
 
-La suite cubre productos, inventario, ventas, caja, comprobante de texto, generación de PDF, migraciones/respaldos y un smoke test que instancia las siete vistas y los diálogos principales.
+En Linux o macOS:
 
-## Limitaciones conocidas
+```bash
+QT_QPA_PLATFORM=offscreen python -m unittest discover -s tests -v
+```
 
-Este MVP **no** incluye:
+Las pruebas cubren, entre otros componentes, productos, inventario, ventas, caja, comprobantes, PDF, importación y exportación de Excel, migraciones y carga de vistas.
 
-- Facturación electrónica SUNAT ni boletas/facturas tributarias.
-- Multiusuario, roles o contraseñas.
-- Compras a proveedores, cuentas por pagar o devoluciones parciales.
-- Sincronización en red o nube.
-- Gestión de varias cajas simultáneas.
+## Alcance actual
 
-Para una tienda real se recomienda mantener respaldos frecuentes, usar una impresora térmica compatible con Windows y definir una rutina de cierre de caja diaria.
+- No realiza facturación electrónica SUNAT ni se integra con pasarelas de pago: Yape se registra como método de pago, pero la aplicación no verifica el abono automáticamente.
+- No incluye cuentas de usuario, roles ni sincronización en red o en la nube.
+- No gestiona varias cajas abiertas simultáneamente ni devoluciones parciales.
+- Los datos se guardan localmente; organiza copias de seguridad periódicas según las necesidades del negocio.
 
 ## Licencia
 
-Proyecto privado de uso libre para la tienda que lo solicite. Ajusta la licencia según tu distribución.
+Este repositorio todavía no incluye un archivo de licencia. La disponibilidad pública del código no concede por sí sola una licencia de uso, modificación o distribución; consulta al propietario para conocer las condiciones aplicables.
 
-
-### Importar productos desde Excel
-
-En **Productos**, usa **Plantilla Excel** para guardar un archivo `.xlsx` y completa una fila por producto. Las columnas `nombre` y `precio` son obligatorias; el precio y el costo se escriben en soles. Las demás columnas son opcionales. La categoría debe existir previamente y la unidad puede ser pieza, kg, litro, paquete, caja o bolsa. Para conservar ceros iniciales, escribe los códigos de barras como texto en Excel. No se admiten fórmulas.
-
-Selecciona **Importar Excel** para crear los productos válidos. Las filas con errores se omiten y se muestran en el resultado; los productos existentes no se modifican. El stock inicial genera su movimiento de inventario. Si corriges el archivo para importarlo de nuevo, elimina las filas que ya se importaron.
-
-### Exportar productos a Excel
-
-En **Productos**, selecciona **Exportar Excel** y elige dónde guardar el archivo. Se exporta el catálogo completo, incluidos productos inactivos, independientemente de los filtros de pantalla. Los importes se expresan en soles y se incluye el estado de cada producto. El archivo comparte columnas con la plantilla de importación; importar crea productos nuevos y no actualiza los existentes.
