@@ -1,0 +1,38 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Base de datos local y respaldos
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/backups/
+data/boletas/
+
+# Registros
+logs/
+
+# Herramientas y sistema
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Empaquetado
+build/
+dist/
+*.spec
+
+# Entornos de compilación locales
+.build_python/
+.build_deps/
+.test_temp/
